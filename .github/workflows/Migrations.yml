@@ -1,0 +1,87 @@
+# Applies the migrations to the Neon database. Every change is first applied to an empty PostgreSQL (twice: the
+# second run must do nothing); only then, on main, it is applied to Neon. The connection is the repository secret
+# DATABASE_URL (the same postgresql://user:password@host/db?sslmode=require that the services use on Render).
+name: Migraciones
+
+on:
+  push:
+    branches: [main]
+    paths: ["migrations/**", ".github/workflows/Migrations.yml"]
+  pull_request:
+    paths: ["migrations/**", ".github/workflows/Migrations.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: migrations
+  cancel-in-progress: false
+
+env:
+  FLYWAY_IMAGE: flyway/flyway:10.20.1
+
+jobs:
+  verify:
+    name: Probar en una base vacía
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: aquasense
+          POSTGRES_USER: aquasense
+          POSTGRES_PASSWORD: aquasense
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar todas las migraciones dos veces
+        run: |
+          for run in 1 2; do
+            docker run --rm --network host -v "$PWD/migrations:/flyway/sql:ro" "$FLYWAY_IMAGE" \
+              -url=jdbc:postgresql://localhost:5432/aquasense -user=aquasense -password=aquasense \
+              -validateMigrationNaming=true migrate
+          done
+          docker run --rm --network host -v "$PWD/migrations:/flyway/sql:ro" "$FLYWAY_IMAGE" \
+            -url=jdbc:postgresql://localhost:5432/aquasense -user=aquasense -password=aquasense info
+
+  deploy:
+    name: Aplicar en Neon
+    needs: verify
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Leer la conexión
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Falta el secreto DATABASE_URL (Settings -> Secrets and variables -> Actions)."
+            exit 1
+          fi
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import os
+          from urllib.parse import urlsplit, unquote
+          u = urlsplit(os.environ["DATABASE_URL"].strip())
+          user, password = unquote(u.username or ""), unquote(u.password or "")
+          query = u.query or "sslmode=require"
+          port = f":{u.port}" if u.port else ""
+          print(f"FLYWAY_HOST={u.hostname}")
+          print(f"FLYWAY_URL=jdbc:postgresql://{u.hostname}{port}{u.path}?{query}")
+          print(f"FLYWAY_USER={user}")
+          print(f"FLYWAY_PASSWORD={password}")
+          PY
+      - name: Ocultar la conexión en el registro
+        run: |
+          echo "::add-mask::$FLYWAY_PASSWORD"
+          echo "::add-mask::$FLYWAY_USER"
+          echo "::add-mask::$FLYWAY_HOST"
+      - name: Validar y aplicar las migraciones pendientes
+        run: |
+          docker run --rm -e FLYWAY_URL -e FLYWAY_USER -e FLYWAY_PASSWORD -v "$PWD/migrations:/flyway/sql:ro" "$FLYWAY_IMAGE" \
+            -validateMigrationNaming=true -connectRetries=10 info migrate info
