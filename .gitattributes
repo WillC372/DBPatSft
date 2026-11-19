@@ -1,0 +1,4 @@
+# The schema is the code of this repository: GitHub counts the migrations as SQL.
+*.sql linguist-detectable=true
+# The engineering team tooling is not part of the schema.
+.claude/** linguist-vendored
