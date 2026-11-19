@@ -1,6 +1,6 @@
 # Esquema de la base de datos
 
-Esquema final después de aplicar las 26 migraciones (V1 a V26; V25 solo borra filas y V26 agrega `alerts.kind`): 27 tablas más `flyway_schema_history`, la tabla con la que Flyway sabe qué migraciones ya están aplicadas. El diagrama se generó aplicando las migraciones a una base vacía y leyendo `information_schema`; los tipos son los de PostgreSQL.
+Esquema final después de aplicar las 27 migraciones (V1 a V27; V25 solo borra filas, V26 agrega `alerts.kind` y V27 acepta el origen OFFICIAL en `measurements.source`): 27 tablas más `flyway_schema_history`, la tabla con la que Flyway sabe qué migraciones ya están aplicadas. El diagrama se generó aplicando las migraciones a una base vacía y leyendo `information_schema`; los tipos son los de PostgreSQL.
 
 ## Quién escribe cada tabla
 
