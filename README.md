@@ -11,7 +11,7 @@ Repositorio dueño del esquema de la base de datos de **Aqua Assistant AI**, la 
 
 ## Contenido
 
-- `migrations/`: las migraciones en orden (`V1__CreateSchema.sql` … `V25__UntranslatedSpanishEntries.sql`). V1 a V24 son las mismas, byte por byte, que el backend aplicaba antes de separar la base de datos, así que la base de Neon ya las tiene registradas y no se vuelven a ejecutar; desde V25 se aplican desde este repositorio.
+- `migrations/`: las migraciones en orden (`V1__CreateSchema.sql` … `V26__AlertKind.sql`). V1 a V24 son las mismas, byte por byte, que el backend aplicaba antes de separar la base de datos, así que la base de Neon ya las tiene registradas y no se vuelven a ejecutar; desde V25 se aplican desde este repositorio.
 - `docs/Esquema.md`: las 27 tablas, qué servicio escribe cada una y el diagrama entidad-relación.
 - `.github/workflows/Migrations.yml`: prueba y despliegue (abajo).
 - `docker-compose.yml`: una base local con todo el esquema.

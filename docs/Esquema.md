@@ -1,6 +1,6 @@
 # Esquema de la base de datos
 
-Esquema final después de aplicar las 25 migraciones (V1 a V25; V25 solo borra filas, no cambia tablas): 27 tablas más `flyway_schema_history`, la tabla con la que Flyway sabe qué migraciones ya están aplicadas. El diagrama se generó aplicando las migraciones a una base vacía y leyendo `information_schema`; los tipos son los de PostgreSQL.
+Esquema final después de aplicar las 26 migraciones (V1 a V26; V25 solo borra filas y V26 agrega `alerts.kind`): 27 tablas más `flyway_schema_history`, la tabla con la que Flyway sabe qué migraciones ya están aplicadas. El diagrama se generó aplicando las migraciones a una base vacía y leyendo `information_schema`; los tipos son los de PostgreSQL.
 
 ## Quién escribe cada tabla
 
@@ -11,7 +11,7 @@ Los dos servicios usan la misma base de datos de Neon. Cada tabla tiene un dueñ
 | `agent_reports` | 9 | Servicio de IA |
 | `ai_diagnoses` | 8 | Servicio de IA |
 | `ai_usage` | 13 | Servicio de IA |
-| `alerts` | 8 | Backend |
+| `alerts` | 9 | Backend |
 | `app_keys` | 3 | Backend |
 | `audit_log` | 6 | Backend |
 | `calibrations` | 10 | Backend |
@@ -120,6 +120,7 @@ erDiagram
         character_varying message
         boolean is_read
         timestamp_with_time_zone created_at
+        character_varying kind
     }
     app_keys {
         character_varying key_name PK
