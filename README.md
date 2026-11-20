@@ -11,7 +11,7 @@ Repositorio dueño del esquema de la base de datos de **Aqua Assistant AI**, la 
 
 ## Contenido
 
-- `migrations/`: las migraciones en orden (`V1__CreateSchema.sql` … `V29__PhoneAndWhatsAppAlerts.sql`). V1 a V24 son las mismas, byte por byte, que el backend aplicaba antes de separar la base de datos, así que la base de Neon ya las tiene registradas y no se vuelven a ejecutar; desde V25 se aplican desde este repositorio.
+- `migrations/`: las migraciones en orden (`V1__CreateSchema.sql` … `V30__SmsAlerts.sql`). V1 a V24 son las mismas, byte por byte, que el backend aplicaba antes de separar la base de datos, así que la base de Neon ya las tiene registradas y no se vuelven a ejecutar; desde V25 se aplican desde este repositorio.
 - `docs/Esquema.md`: las 27 tablas (29 migraciones), qué servicio escribe cada una y el diagrama entidad-relación.
 - `.github/workflows/Migrations.yml`: prueba y despliegue (abajo).
 - `docker-compose.yml`: una base local con todo el esquema.
@@ -29,7 +29,7 @@ También se puede correr a mano desde la pestaña Actions → Migraciones → Ru
 
 ## Agregar una migración
 
-1. Crea `migrations/V30__QueCambia.sql`. El número sigue al último y el nombre dice qué cambia, en inglés y en PascalCase, como los anteriores.
+1. Crea `migrations/V31__QueCambia.sql`. El número sigue al último y el nombre dice qué cambia, en inglés y en PascalCase, como los anteriores.
 2. **Nunca edites una migración que ya está en `main`**: Neon ya la aplicó y Flyway rechazará el despliegue porque cambió su suma de verificación. Para corregir algo, agrega otra migración.
 3. Si la migración agrega columnas que usa el código, despliega primero la base de datos y después el servicio.
 4. Copia la migración a las pruebas de los servicios, que construyen su base H2 con estas migraciones: `java scripts/SyncMigrations.java ../DBPatSft` en BackendPatSft y en AIPatSft.
