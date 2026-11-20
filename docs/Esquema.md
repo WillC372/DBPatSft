@@ -1,6 +1,6 @@
 # Esquema de la base de datos
 
-Esquema final después de aplicar las 29 migraciones (V1 a V29; V25 y V28 solo borran filas, V26 agrega `alerts.kind`, V27 acepta el origen OFFICIAL en `measurements.source` y V29 agrega `users.phone_number` y `user_settings.whatsapp_alerts`, que quedaron sin uso cuando el dueño decidió quitar los avisos por WhatsApp en H-060; no se borran porque sería un cambio destructivo): 27 tablas más `flyway_schema_history`, la tabla con la que Flyway sabe qué migraciones ya están aplicadas. El diagrama se generó aplicando las migraciones a una base vacía y leyendo `information_schema`; los tipos son los de PostgreSQL.
+Esquema final después de aplicar las 30 migraciones (V1 a V30; V25 y V28 solo borran filas, V26 agrega `alerts.kind`, V27 acepta el origen OFFICIAL en `measurements.source` y V29 agrega `users.phone_number` y `user_settings.whatsapp_alerts`, que quedaron sin uso cuando el dueño decidió quitar los avisos por WhatsApp en H-060; desde V30 `users.phone_number` vuelve a usarse para la alarma por SMS y `user_settings.sms_alerts` dice si la persona la quiere): 27 tablas más `flyway_schema_history`, la tabla con la que Flyway sabe qué migraciones ya están aplicadas. El diagrama se generó aplicando las migraciones a una base vacía y leyendo `information_schema`; los tipos son los de PostgreSQL.
 
 ## Quién escribe cada tabla
 
@@ -32,7 +32,7 @@ Los dos servicios usan la misma base de datos de Neon. Cada tabla tiene un dueñ
 | `ui_translations` | 5 | Servicio de IA |
 | `user_avatars` | 3 | Backend |
 | `user_sessions` | 9 | Backend |
-| `user_settings` | 10 | Backend |
+| `user_settings` | 11 | Backend |
 | `users` | 17 | Backend |
 | `water_profiles` | 12 | Backend |
 
@@ -336,6 +336,7 @@ erDiagram
         boolean email_alerts
         boolean voice_enabled
         boolean whatsapp_alerts
+        boolean sms_alerts
     }
     users {
         bigint id PK
