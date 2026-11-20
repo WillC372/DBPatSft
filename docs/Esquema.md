@@ -1,6 +1,6 @@
 # Esquema de la base de datos
 
-Esquema final después de aplicar las 27 migraciones (V1 a V27; V25 solo borra filas, V26 agrega `alerts.kind` y V27 acepta el origen OFFICIAL en `measurements.source`): 27 tablas más `flyway_schema_history`, la tabla con la que Flyway sabe qué migraciones ya están aplicadas. El diagrama se generó aplicando las migraciones a una base vacía y leyendo `information_schema`; los tipos son los de PostgreSQL.
+Esquema final después de aplicar las 29 migraciones (V1 a V29; V25 y V28 solo borran filas, V26 agrega `alerts.kind`, V27 acepta el origen OFFICIAL en `measurements.source` y V29 agrega `users.phone_number` y `user_settings.whatsapp_alerts`, que quedaron sin uso cuando el dueño decidió quitar los avisos por WhatsApp en H-060; no se borran porque sería un cambio destructivo): 27 tablas más `flyway_schema_history`, la tabla con la que Flyway sabe qué migraciones ya están aplicadas. El diagrama se generó aplicando las migraciones a una base vacía y leyendo `information_schema`; los tipos son los de PostgreSQL.
 
 ## Quién escribe cada tabla
 
@@ -32,8 +32,8 @@ Los dos servicios usan la misma base de datos de Neon. Cada tabla tiene un dueñ
 | `ui_translations` | 5 | Servicio de IA |
 | `user_avatars` | 3 | Backend |
 | `user_sessions` | 9 | Backend |
-| `user_settings` | 9 | Backend |
-| `users` | 16 | Backend |
+| `user_settings` | 10 | Backend |
+| `users` | 17 | Backend |
 | `water_profiles` | 12 | Backend |
 
 El servicio de IA lee del backend las tablas `users`, `user_settings`, `user_sessions`, `places`, `place_members`, `water_profiles`, `measurements` y `alerts` para sus análisis, y escribe en `audit_log` lo que hace (diagnósticos, informes). Las mediciones leídas de una foto no las escribe él: se las envía al backend, que las guarda y genera las alertas.
@@ -335,6 +335,7 @@ erDiagram
         bigint active_place_id FK
         boolean email_alerts
         boolean voice_enabled
+        boolean whatsapp_alerts
     }
     users {
         bigint id PK
@@ -353,6 +354,7 @@ erDiagram
         timestamp_with_time_zone last_login_at
         boolean demo
         timestamp_with_time_zone avatar_updated_at
+        character_varying phone_number
     }
     water_profiles {
         bigint id PK
